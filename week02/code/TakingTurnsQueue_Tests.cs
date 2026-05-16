@@ -12,6 +12,9 @@ public class TakingTurnsQueueTests
     // run until the queue is empty
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, Sue, Tim, Tim
     // Defect(s) Found: 
+    // - When a person has exactly 1 turn left (person.Turns > 1 is false), they are not added 
+    //   back to the queue for their final turn. They are dropped early, resulting in an incorrect 
+    //   sequence order and the queue emptying prematurely.
     public void TestTakingTurnsQueue_FiniteRepetition()
     {
         var bob = new Person("Bob", 2);
@@ -44,6 +47,8 @@ public class TakingTurnsQueueTests
     // After running 5 times, add George with 3 turns.  Run until the queue is empty.
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, George, Sue, Tim, George, Tim, George
     // Defect(s) Found: 
+    // - Same defect as Test 1. Because people with 1 turn remaining are not re-enqueued for 
+    //   their final turn, the ordering breaks and the queue empties out too early.
     public void TestTakingTurnsQueue_AddPlayerMidway()
     {
         var bob = new Person("Bob", 2);
@@ -86,6 +91,8 @@ public class TakingTurnsQueueTests
     // Run 10 times.
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, Sue, Tim, Tim
     // Defect(s) Found: 
+    // - People with infinite turns (Turns <= 0) fail the condition `person.Turns > 1` and are never 
+    //   re-enqueued. Tim gets removed from the queue entirely after his first turn instead of remaining forever.
     public void TestTakingTurnsQueue_ForeverZero()
     {
         var timTurns = 0;
@@ -117,6 +124,8 @@ public class TakingTurnsQueueTests
     // Run 10 times.
     // Expected Result: Tim, Sue, Tim, Sue, Tim, Sue, Tim, Tim, Tim, Tim
     // Defect(s) Found: 
+    // - Same defect as Test 3. Negative turn values are interpreted as infinite turns but fail 
+    //   the code's condition (`person.Turns > 1`). Tim is dropped immediately after one turn.
     public void TestTakingTurnsQueue_ForeverNegative()
     {
         var timTurns = -3;
@@ -144,6 +153,7 @@ public class TakingTurnsQueueTests
     // Scenario: Try to get the next person from an empty queue
     // Expected Result: Exception should be thrown with appropriate error message.
     // Defect(s) Found: 
+    // - No defects found. The method correctly detects an empty queue and throws an InvalidOperationException.
     public void TestTakingTurnsQueue_Empty()
     {
         var players = new TakingTurnsQueue();
